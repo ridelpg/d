@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site com Botões</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Meu Site com Botões</h1>
+        <div id="cameraContainer">
+            <!-- Aqui vamos inserir o vídeo da câmera -->
+        </div>
+        <button id="botao1">Botão 1</button>
+        <button id="botao2">Botão 2</button>
+    </div>
+
+    <script>
+        // Função para solicitar permissão para acessar a câmera e exibir o vídeo
+        function solicitarPermissaoCamera() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(stream) {
+                    console.log('Permissão para acessar a câmera concedida');
+
+                    // Criar elemento de vídeo e configurar o stream da câmera
+                    const videoElement = document.createElement('video');
+                    videoElement.srcObject = stream;
+                    videoElement.autoplay = true;
+                    videoElement.setAttribute('playsinline', ''); // Para garantir a exibição em dispositivos iOS
+
+                    // Inserir o elemento de vídeo na página
+                    const cameraContainer = document.getElementById('cameraContainer');
+                    cameraContainer.appendChild(videoElement);
+
+                    // Registrar o acesso após o usuário visualizar a câmera
+                    registrarAcesso();
+
+                })
+                .catch(function(error) {
+                    console.error('Erro ao acessar a câmera:', error);
+                });
+        }
+
+        // Função para fazer uma requisição POST quando a página é carregada
+        function registrarAcesso() {
+            fetch('http://localhost:5000/registrar_acesso', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    site: 'Site com Botões'
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao registrar acesso');
+                }
+                console.log('Acesso registrado com sucesso');
+            })
+            .catch(error => console.error('Erro ao registrar acesso:', error));
+        }
+
+        // Adicionar evento de carga da página para solicitar permissão da câmera
+        window.addEventListener('load', function() {
+            solicitarPermissaoCamera();
+        });
+    </script>
+</body>
+</html>
